@@ -1,7 +1,8 @@
 module Pomodoro exposing (main)
 
 import Html exposing (..)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (autofocus, class, disabled, placeholder, src, type_, value)
+import Html.Events exposing (onClick, onInput, onSubmit)
 
 
 type alias Id =
@@ -17,12 +18,14 @@ type alias Task =
 
 type alias Model =
     { tasks : List Task
+    , newTask : String
     }
 
 
 initialModel : Model
 initialModel =
     { tasks = []
+    , newTask = ""
     }
 
 
@@ -45,22 +48,85 @@ viewHeader =
         ]
 
 
+viewNewTask : Model -> Html Msg
+viewNewTask model =
+    div [ class "new-task" ]
+        [ form [ class "d-flex", onSubmit SaveTask ]
+            [ input
+                [ type_ "text"
+                , class "flex-fill"
+                , placeholder "Add a task..."
+                , value model.newTask
+                , autofocus True
+                , onInput UpdateTask
+                ]
+                []
+            , button
+                [ disabled (String.isEmpty model.newTask)
+                , class "btn btn-dark"
+                ]
+                [ text "Add" ]
+            ]
+        ]
+
+
+viewTaskActions : Task -> Html Msg
+viewTaskActions task =
+    div [ class "actions" ]
+        [ button [ class "btn btn-dark" ] [ text "Done" ]
+        , button [ class "btn btn-dark" ] [ text "Remove" ]
+        ]
+
+
+viewTask : Task -> Html Msg
+viewTask task =
+    li [ class "task d-flex" ]
+        [ div [ class "desc flex-fill" ] [ text task.description ]
+        , viewTaskActions task
+        ]
+
+
+viewTaskList : List Task -> Html Msg
+viewTaskList tasks =
+    ul [ class "tasks" ] (List.map viewTask tasks)
+
+
 view : Model -> Html Msg
 view model =
     div [ class "app" ]
         [ viewHeader
+        , viewTaskList model.tasks
+        , viewNewTask model
         ]
 
 
 type Msg
     = SaveTask
+    | UpdateTask String
+
+
+addNewTask : Model -> Model
+addNewTask model =
+    let
+        task =
+            Task (List.length model.tasks) model.newTask False
+
+        newTasks =
+            model.tasks ++ [ task ]
+    in
+        { model | tasks = newTasks, newTask = "" }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SaveTask ->
-            ( model, Cmd.none )
+            ( addNewTask model, Cmd.none )
+
+        UpdateTask description ->
+            ( { model | newTask = description }
+            , Cmd.none
+            )
 
 
 subscriptions : Model -> Sub Msg

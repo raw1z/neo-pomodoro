@@ -1,13 +1,76 @@
+$font-family-sans-serif: 'Montserrat', sans-serif;
+
 @import "bootstrap";
 @import "variables";
 
 body {
   width: 100vw;
   overflow-x: hidden;
+  background-color: $dark;
+  color: $white;
 }
 
 .header {
-  background-color: $dark;
-  color: $light;
+  background-color: $gray-900;
 }
 
+.new-task {
+  border-bottom: thin solid $gray-700;
+
+  .btn {
+    border-radius: 0;
+  }
+
+  form {
+    margin: 0;
+  }
+
+  input {
+    border: none;
+    background-color: transparent;
+    color: $white;
+    padding: {
+      left: 0.5rem;
+      right: 0.5rem;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+.tasks {
+  margin: 0;
+  padding: 0;
+
+  .task {
+    list-style-type: none;
+    border-bottom: thin solid $gray-700;
+    height: 40px;
+    line-height: 40px;
+
+    .actions {
+      background-color: $dark;
+      transition: background-color 0.5s;
+
+      button {
+        color: $dark;
+        border-radius: 0;
+        transition: color 0.25s;
+      }
+    }
+
+    .desc {
+      padding-left: 0.5rem;
+    }
+
+    &:hover {
+      .actions {
+        button {
+          color: $light;
+        }
+      }
+    }
+  }
+}
