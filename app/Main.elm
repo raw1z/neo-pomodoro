@@ -65,7 +65,7 @@ viewNewTask model =
                 [ disabled (String.isEmpty model.newTask)
                 , class "btn btn-dark"
                 ]
-                [ text "Add" ]
+                [ text "+" ]
             ]
         ]
 
@@ -73,8 +73,11 @@ viewNewTask model =
 viewTaskActions : Task -> Html Msg
 viewTaskActions task =
     div [ class "actions" ]
-        [ button [ class "btn btn-dark" ] [ text "Done" ]
-        , button [ class "btn btn-dark" ] [ text "Remove" ]
+        [ button
+            [ class "btn btn-dark"
+            , onClick (RemoveTask task)
+            ]
+            [ text "-" ]
         ]
 
 
@@ -103,18 +106,28 @@ view model =
 type Msg
     = SaveTask
     | UpdateTask String
+    | RemoveTask Task
 
 
 addNewTask : Model -> Model
 addNewTask model =
     let
         task =
-            Task (List.length model.tasks) model.newTask False
+            Task ((List.length model.tasks) + 1) model.newTask False
 
         newTasks =
             model.tasks ++ [ task ]
     in
         { model | tasks = newTasks, newTask = "" }
+
+
+removeTask : Model -> Task -> Model
+removeTask model taskToRemove =
+    let
+        isNotRemovable task =
+            task.id /= taskToRemove.id
+    in
+        { model | tasks = List.filter isNotRemovable model.tasks }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -127,6 +140,9 @@ update msg model =
             ( { model | newTask = description }
             , Cmd.none
             )
+
+        RemoveTask task ->
+            ( (removeTask model task), Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
