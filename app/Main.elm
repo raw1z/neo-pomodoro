@@ -16,9 +16,25 @@ type alias Task =
     }
 
 
+type TimerStatus
+    = Work
+    | Pause
+    | LongPause
+
+
+type alias Timer =
+    { task : Task
+    , elapsedTime : Int
+    , timeout : Int
+    , status : TimerStatus
+    , statusCount : Int
+    }
+
+
 type alias Model =
     { tasks : List Task
     , newTask : String
+    , timer : Maybe Timer
     }
 
 
@@ -26,6 +42,7 @@ initialModel : Model
 initialModel =
     { tasks = []
     , newTask = ""
+    , timer = Nothing
     }
 
 
@@ -84,7 +101,11 @@ viewTaskActions task =
 viewTask : Task -> Html Msg
 viewTask task =
     li [ class "task d-flex" ]
-        [ div [ class "desc flex-fill" ] [ text task.description ]
+        [ div
+            [ class "desc flex-fill"
+            , onClick (UpdateTimer task)
+            ]
+            [ text task.description ]
         , viewTaskActions task
         ]
 
@@ -94,10 +115,23 @@ viewTaskList tasks =
     ul [ class "tasks" ] (List.map viewTask tasks)
 
 
+viewTimer : Maybe Timer -> Html Msg
+viewTimer timer =
+    case timer of
+        Just timer ->
+            div [ class "timer" ]
+                [ text timer.task.description
+                ]
+
+        Nothing ->
+            div [] []
+
+
 view : Model -> Html Msg
 view model =
     div [ class "app" ]
         [ viewHeader
+        , viewTimer model.timer
         , viewTaskList model.tasks
         , viewNewTask model
         ]
@@ -107,6 +141,7 @@ type Msg
     = SaveTask
     | UpdateTask String
     | RemoveTask Task
+    | UpdateTimer Task
 
 
 addNewTask : Model -> Model
@@ -130,6 +165,20 @@ removeTask model taskToRemove =
         { model | tasks = List.filter isNotRemovable model.tasks }
 
 
+updateTimer : Model -> Task -> Model
+updateTimer model task =
+    let
+        newTimer =
+            case model.timer of
+                Nothing ->
+                    Just (Timer task 0 1200 Work 1)
+
+                _ ->
+                    model.timer
+    in
+        { model | timer = newTimer }
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -143,6 +192,9 @@ update msg model =
 
         RemoveTask task ->
             ( (removeTask model task), Cmd.none )
+
+        UpdateTimer task ->
+            ( updateTimer model task, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
