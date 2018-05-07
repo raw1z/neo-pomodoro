@@ -14,10 +14,13 @@
     "auto-reload-brunch": "^2",
     "autoprefixer": "^8.4.1",
     "babel-preset-env": "^1.6.1",
+    "bootstrap": "^4.1.1",
     "brunch": "^2",
     "clean-css-brunch": "^2",
     "csswring": "^6.0.3",
     "elm-brunch": "^0.11.1",
+    "jquery": "^1.9.1",
+    "popper.js": "^1.14.3",
     "postcss-brunch": "^2.1.0",
     "sass-brunch": "^2.10.4",
     "uglify-js-brunch": "^2"

@@ -9,7 +9,10 @@ exports.paths = {
 
 exports.plugins = {
   sass: {
-    mode: 'ruby'
+    precision: 8,
+    options: {
+      includePaths: ['node_modules/bootstrap/scss']
+    }
   },
 
   elmBrunch: {

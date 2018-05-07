@@ -1,9 +1,13 @@
+@import "bootstrap";
+@import "variables";
+
 body {
-    width: 100vw;
-    overflow-x: hidden;
+  width: 100vw;
+  overflow-x: hidden;
 }
 
 .header {
-    background-color: #000;
-    color: white;
+  background-color: $dark;
+  color: $light;
 }
+
