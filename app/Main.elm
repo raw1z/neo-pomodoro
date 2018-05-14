@@ -3,6 +3,7 @@ module Pomodoro exposing (main)
 import Html exposing (..)
 import Html.Attributes exposing (autofocus, class, disabled, placeholder, src, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
+import Time exposing (Time, second)
 
 
 type alias Id =
@@ -20,6 +21,7 @@ type TimerStatus
     = Work
     | Pause
     | LongPause
+    | Off
 
 
 type alias Timer =
@@ -164,6 +166,7 @@ type Msg
     | UpdateTask String
     | RemoveTask Task
     | UpdateTimer Task
+    | Tick Time
 
 
 addNewTask : Model -> Model
@@ -201,6 +204,26 @@ updateTimer model task =
         { model | timer = newTimer }
 
 
+decreaseTimer : Timer -> Maybe Timer
+decreaseTimer timer =
+    case timer.timeout of
+        0 ->
+            Nothing
+
+        _ ->
+            Just { timer | timeout = timer.timeout - 1 }
+
+
+updateTimerAtTick : Model -> Model
+updateTimerAtTick model =
+    case model.timer of
+        Nothing ->
+            model
+
+        Just currentTimer ->
+            { model | timer = (decreaseTimer currentTimer) }
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -218,10 +241,13 @@ update msg model =
         UpdateTimer task ->
             ( updateTimer model task, Cmd.none )
 
+        Tick _ ->
+            ( updateTimerAtTick model, Cmd.none )
+
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Time.every second Tick
 
 
 main : Program Never Model Msg
