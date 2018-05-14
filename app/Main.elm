@@ -57,8 +57,7 @@ viewHeader =
         [ div [ class "container" ]
             [ div [ class "row" ]
                 [ div [ class "col-12" ]
-                    [ h1 [ class "display-4" ]
-                        [ text "Pomodoro" ]
+                    [ h1 [] [ text "Pomodoro" ]
                     ]
                 ]
             ]
@@ -115,12 +114,35 @@ viewTaskList tasks =
     ul [ class "tasks" ] (List.map viewTask tasks)
 
 
+formatMinutesOrSeconds : Int -> String
+formatMinutesOrSeconds value =
+    String.padLeft 2 '0' (toString value)
+
+
+viewTimerTimeout : Timer -> Html Msg
+viewTimerTimeout timer =
+    let
+        minutes =
+            timer.timeout // 60
+
+        seconds =
+            timer.timeout - (minutes * 60)
+    in
+        h1 [ class "display-1 timeout" ]
+            [ text (formatMinutesOrSeconds minutes)
+            , text ":"
+            , text (formatMinutesOrSeconds seconds)
+            ]
+
+
 viewTimer : Maybe Timer -> Html Msg
 viewTimer timer =
     case timer of
         Just timer ->
             div [ class "timer" ]
-                [ text timer.task.description
+                [ viewTimerTimeout timer
+                , div [ class "task-description" ]
+                    [ text timer.task.description ]
                 ]
 
         Nothing ->

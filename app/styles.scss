@@ -12,6 +12,7 @@ body {
 
 .header {
   background-color: $gray-900;
+  text-align: center;
 }
 
 .new-task {
@@ -75,5 +76,18 @@ body {
 }
 
 .timer {
-  background-color: $success;
+  background-color: $danger;
+
+  .timeout {
+    text-align: center;
+  }
+
+  .task-description {
+    text-align: center;
+    background-color: transparentize($dark, 0.9);
+    padding: {
+      top: 0.5rem;
+      bottom: 0.5rem;
+    }
+  }
 }
