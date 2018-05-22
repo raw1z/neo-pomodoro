@@ -76,7 +76,15 @@ body {
 }
 
 .timer {
-  background-color: $danger;
+  transition: background-color 0.5s;
+
+  &.timer-work {
+    background-color: $danger;
+  }
+
+  &.timer-pause {
+    background-color: $success;
+  }
 
   .timeout {
     text-align: center;

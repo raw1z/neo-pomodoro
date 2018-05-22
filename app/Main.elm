@@ -18,10 +18,9 @@ type alias Task =
 
 
 type TimerStatus
-    = Work
-    | Pause
+    = Work Int
+    | Pause Int
     | LongPause
-    | Off
 
 
 type alias Timer =
@@ -38,6 +37,21 @@ type alias Model =
     , newTask : String
     , timer : Maybe Timer
     }
+
+
+workTimeout : Int
+workTimeout =
+    1200
+
+
+pauseTimeout : Int
+pauseTimeout =
+    300
+
+
+longPauseTimeout : Int
+longPauseTimeout =
+    1200
 
 
 initialModel : Model
@@ -137,11 +151,21 @@ viewTimerTimeout timer =
             ]
 
 
+viewTimerClassNames : Timer -> String
+viewTimerClassNames timer =
+    case timer.status of
+        Work _ ->
+            "timer timer-work"
+
+        _ ->
+            "timer timer-pause"
+
+
 viewTimer : Maybe Timer -> Html Msg
 viewTimer timer =
     case timer of
         Just timer ->
-            div [ class "timer" ]
+            div [ class (viewTimerClassNames timer) ]
                 [ viewTimerTimeout timer
                 , div [ class "task-description" ]
                     [ text timer.task.description ]
@@ -190,25 +214,64 @@ removeTask model taskToRemove =
         { model | tasks = List.filter isNotRemovable model.tasks }
 
 
+createTimer : Task -> Timer
+createTimer task =
+    Timer task 0 workTimeout (Work 1) 1
+
+
+updateExistingTimer : Timer -> Task -> Timer
+updateExistingTimer timer task =
+    case timer.status of
+        Pause count ->
+            { timer
+                | status = Work (count + 1)
+                , timeout = workTimeout
+                , task = task
+            }
+
+        LongPause ->
+            { timer
+                | status = (Work 1)
+                , timeout = workTimeout
+                , task = task
+            }
+
+        _ ->
+            timer
+
+
 updateTimer : Model -> Task -> Model
 updateTimer model task =
     let
         newTimer =
             case model.timer of
                 Nothing ->
-                    Just (Timer task 0 1200 Work 1)
+                    createTimer task
 
-                _ ->
-                    model.timer
+                Just timer ->
+                    updateExistingTimer timer task
     in
-        { model | timer = newTimer }
+        { model | timer = Just newTimer }
+
+
+shiftTimer : Timer -> Maybe Timer
+shiftTimer timer =
+    case timer.status of
+        Work 4 ->
+            Just { timer | status = LongPause, timeout = longPauseTimeout }
+
+        Work count ->
+            Just { timer | status = (Pause count), timeout = pauseTimeout }
+
+        _ ->
+            Just timer
 
 
 decreaseTimer : Timer -> Maybe Timer
 decreaseTimer timer =
     case timer.timeout of
         0 ->
-            Nothing
+            shiftTimer timer
 
         _ ->
             Just { timer | timeout = timer.timeout - 1 }
